@@ -1,5 +1,3 @@
-import type { ChangeEvent, KeyboardEvent } from "react";
-
 import Typewriter from "./Typewriter";
 import gooseLogo from "./assets/goose.svg";
 import quackIcon from "./assets/quack.svg";
