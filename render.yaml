@@ -1,0 +1,29 @@
+services:
+  # Backend API Service
+  - type: web
+    name: goose-ai-backend
+    runtime: node
+    plan: free
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && node express.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: GEMINI_API_KEY
+        sync: false  # This will need to be set manually in Render dashboard
+    autoDeploy: true
+    
+  # Frontend Static Site
+  - type: web
+    name: goose-ai-frontend
+    runtime: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_ENV
+        value: production
+    autoDeploy: true 

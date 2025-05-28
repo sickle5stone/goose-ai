@@ -45,7 +45,9 @@ function App() {
 
     setIsLoading(true);
 
-    await fetch("http://localhost:3008/api/v1/chat/initiate", {
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3008";
+
+    await fetch(`${apiUrl}/api/v1/chat/initiate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
