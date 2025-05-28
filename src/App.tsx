@@ -1,3 +1,5 @@
+import type { ChangeEvent, KeyboardEvent } from "react";
+
 import Typewriter from "./Typewriter";
 import gooseLogo from "./assets/goose.svg";
 import quackIcon from "./assets/quack.svg";
@@ -145,8 +147,10 @@ function App() {
               className="w-full p-4 pr-12 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 min-h-[100px] resize-none"
               rows={2}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => {
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                setMessage(e.target.value)
+              }
+              onKeyDown={(e: KeyboardEvent<HTMLTextAreaElement>) => {
                 if (
                   e.key === "Enter" &&
                   (e.shiftKey || e.ctrlKey || e.metaKey)
@@ -187,7 +191,7 @@ function App() {
           <select
             className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
             value={activeModel.id.toString()}
-            onChange={(e) => {
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
               const selectedModel = activeModels.find(
                 (model) => model.id.toString() === e.target.value
               );

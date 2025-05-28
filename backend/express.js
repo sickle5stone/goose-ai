@@ -16,13 +16,24 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const gemini_service_1 = require("./service/gemini_service");
 const app = (0, express_1.default)();
-const port = 3008;
-app.use((0, cors_1.default)({
-    origin: "http://localhost:5177",
+const port = process.env.PORT || 3008;
+// CORS configuration for production
+const corsOptions = {
+    origin: process.env.NODE_ENV === "production"
+        ? [
+            "https://goose-ai-frontend.onrender.com",
+            "https://your-frontend-domain.onrender.com",
+        ]
+        : "http://localhost:5177",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-}));
+};
+app.use((0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
+// Health check endpoint for Render
+app.get("/", (req, res) => {
+    res.json({ status: "OK", message: "Goose AI Backend is running!" });
+});
 const rootRoute = "/api/v1";
 app.post(`${rootRoute}/chat/initiate`, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
