@@ -120,7 +120,7 @@ function App() {
 
         <div
           ref={conversationContainerRef}
-          className="bg-white lg:ml-20 rounded-2xl p-4 space-y-4 overflow-y-auto"
+          className="bg-white lg:ml-20 rounded-2xl p-4 space-y-4 overflow-y-auto lg:min-w-[340px]"
         >
           <div className="hidden lg:flex">
             {/* goose is quacking to you */}
