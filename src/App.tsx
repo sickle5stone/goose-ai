@@ -31,6 +31,27 @@ function App() {
   const [conversation, setConversation] = useState<Message[]>([]);
   const conversationContainerRef = useRef<HTMLDivElement>(null);
   const mainConversationRef = useRef<HTMLDivElement>(null);
+  const [gooseName, setGooseName] = useState("");
+
+  useEffect(() => {
+    const name = localStorage.getItem("gooseName");
+    if (name && name.length > 0) {
+      setGooseName(name);
+    }
+  }, []);
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
+
+  const debouncedSave = (value: string) => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      localStorage.setItem("gooseName", value);
+    }, 1000);
+  };
 
   // Function to scroll to bottom
   const scrollToBottom = () => {
@@ -94,12 +115,12 @@ function App() {
       <div className="flex flex-col items-center justify-center gap-2">
         <div className="flex flex-row items-center justify-center gap-2">
           <img src={talkingDuck} alt="duck1" className="w-10 h-10" />
-          <span className="text-2xl font-bold">Duck 1</span>
+          <span className="text-2xl font-bold text-orange-500">Duck 1</span>
         </div>
 
         <div
           ref={conversationContainerRef}
-          className="bg-white lg:ml-20 rounded-2xl p-4 space-y-4 max-h-96 overflow-y-auto"
+          className="bg-white lg:ml-20 rounded-2xl p-4 space-y-4 overflow-y-auto"
         >
           <div className="hidden lg:flex">
             {/* goose is quacking to you */}
@@ -112,28 +133,34 @@ function App() {
           {conversation.map((message) => (
             <div
               key={message.id}
-              className={`p-4 rounded-lg ${
-                message.role === "user"
-                  ? "bg-gray-100 ml-8"
-                  : "bg-blue-100 mr-8"
+              className={`flex ${
+                message.role === "user" ? "justify-end" : "justify-start"
               }`}
             >
-              {message.role === "user" ? (
-                message.message
-              ) : (
-                <Typewriter
-                  text={message.message}
-                  delay={10}
-                  onUpdate={scrollToBottom}
-                />
-              )}
+              <div
+                className={`p-4 rounded-lg max-w-[80%] ${
+                  message.role === "user"
+                    ? "bg-gray-100 text-right"
+                    : "bg-blue-100 text-left"
+                }`}
+              >
+                {message.role === "user" ? (
+                  message.message
+                ) : (
+                  <Typewriter
+                    text={message.message}
+                    delay={10}
+                    onUpdate={scrollToBottom}
+                  />
+                )}
+              </div>
             </div>
           ))}
 
           {isLoading && (
-            <div className="flex">
+            <div className="flex justify-start">
               {/* fade in and out elipsis animation */}
-              <div className="animate-pulse flex bg-blue-100 rounded-lg px-4 py-2">
+              <div className="animate-pulse flex bg-blue-100 rounded-lg px-4 py-2 max-w-[80%]">
                 <span className="text-2xl font-bold text-yellow-500">
                   . . .
                 </span>
@@ -147,10 +174,10 @@ function App() {
 
   const renderChatWindow = () => {
     return (
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+      <div className="lg:sticky lg:bottom-10 lg:top-10 max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
         <div className="flex justify-center space-x-8 mb-8">
           <a
-            href="https://react.dev"
+            href={import.meta.env.VITE_GOOSE_URL}
             target="_blank"
             className="transition-transform hover:scale-110"
           >
@@ -163,39 +190,70 @@ function App() {
         </div>
 
         <h1 className="text-4xl font-bold text-gray-800 mb-8">
-          Talk to me "Goose"
+          Talk to me{" "}
+          <input
+            type="text"
+            value={gooseName}
+            tabIndex={-1}
+            placeholder="Goose"
+            onChange={(e) => {
+              setGooseName(e.target.value);
+              debouncedSave(e.target.value);
+            }}
+            className={`border-1 p-2 rounded-lg ${
+              gooseName.length > 0 ? "border-orange-500" : "border-gray-300"
+            } focus:outline-none focus:border-blue-500 bg-transparent inline-block w-full max-w-full placeholder:text-yellow-500 text-orange-500 `}
+            style={{
+              width: `${Math.max(
+                gooseName.length > 0 ? gooseName.length + 3 : 5,
+                8
+              )}rem`,
+              transition: "width 0.2s ease-in-out",
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+              }
+            }}
+          />
         </h1>
 
         <div
           ref={mainConversationRef}
-          className="flex flex-col items-center justify-center gap-2 max-h-64 overflow-y-auto mb-4"
+          className="lg:hidden flex flex-col gap-2 max-h-64 overflow-y-auto mb-4 no-scrollbar"
         >
           {conversation.length > 0 && (
             <div className="w-full space-y-4">
               {conversation.map((message) => (
                 <div
                   key={message.id}
-                  className={`p-4 rounded-lg ${
-                    message.role === "user"
-                      ? "bg-gray-100 ml-8"
-                      : "bg-blue-100 mr-8"
+                  className={`flex ${
+                    message.role === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
-                  {message.role === "user" ? (
-                    message.message
-                  ) : (
-                    <Typewriter
-                      text={message.message}
-                      delay={10}
-                      onUpdate={scrollToBottom}
-                    />
-                  )}
+                  <div
+                    className={`p-4 rounded-lg max-w-[80%] ${
+                      message.role === "user"
+                        ? "bg-gray-100 text-right"
+                        : "bg-blue-100 text-left"
+                    }`}
+                  >
+                    {message.role === "user" ? (
+                      message.message
+                    ) : (
+                      <Typewriter
+                        text={message.message}
+                        delay={10}
+                        onUpdate={scrollToBottom}
+                      />
+                    )}
+                  </div>
                 </div>
               ))}
 
               {isLoading && (
-                <div className="flex">
-                  <div className="animate-pulse flex bg-blue-100 rounded-lg px-4 py-2">
+                <div className="flex justify-start">
+                  <div className="animate-pulse flex bg-blue-100 rounded-lg px-4 py-2 max-w-[80%]">
                     <span className="text-2xl font-bold text-yellow-500">
                       . . .
                     </span>
@@ -220,7 +278,9 @@ function App() {
               onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
                 if (
                   e.key === "Enter" &&
-                  (e.shiftKey || e.ctrlKey || e.metaKey)
+                  (e.shiftKey || e.ctrlKey || e.metaKey) &&
+                  !isLoading &&
+                  message.length > 0
                 ) {
                   e.preventDefault();
                   handleSubmit(message, activeModel.name);
@@ -230,7 +290,11 @@ function App() {
             {/* // onclick has a effect of sending the message to the backend */}
             <div
               className="absolute right-3 bottom-6 p-2 text-gray-500 hover:text-blue-500 transition-colors cursor-pointer hover:scale-110"
-              onClick={() => handleSubmit(message, activeModel.name)}
+              onClick={() => {
+                if (!isLoading && message.length > 0) {
+                  handleSubmit(message, activeModel.name);
+                }
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -248,12 +312,6 @@ function App() {
               </svg>
             </div>
           </div>
-          <button
-            onClick={() => handleSubmit(message, activeModel.name)}
-            className="bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
-          >
-            Submit
-          </button>
 
           <select
             className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
@@ -283,7 +341,13 @@ function App() {
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       {renderChatWindow()}
-      <div className="hidden lg:flex">{renderConversationWindow()}</div>
+      <div
+        className={`hidden ${
+          conversation.length > 0 ? "lg:flex" : "hidden"
+        } lg:w-1/4 lg:my-20`}
+      >
+        {renderConversationWindow()}
+      </div>
     </div>
   );
 }
