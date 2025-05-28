@@ -37,25 +37,38 @@ app.get("/", (req, res) => {
 const rootRoute = "/api/v1";
 app.post(`${rootRoute}/chat/initiate`, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    console.log("initiate");
-    console.log(req.body);
-    const response = yield (0, gemini_service_1.submitMessage)((_a = req.body) === null || _a === void 0 ? void 0 : _a.message);
-    console.log(response);
-    // delay 3 second
-    setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
-        const responseToReturn = {
-            id: Math.random(),
-            question: (_a = req.body) === null || _a === void 0 ? void 0 : _a.message,
-            response: response,
-        };
-        res.json(responseToReturn);
-    }), 1500);
-    // res.json({
-    //   id: Math.random(),
-    //   question: req.body.message,
-    //   response: "Message received",
-    // });
+    try {
+        console.log("initiate");
+        console.log(req.body);
+        const body = req.body;
+        if (!(body === null || body === void 0 ? void 0 : body.message)) {
+            res.status(400).json({
+                id: 0,
+                question: "",
+                response: "Message is required",
+            });
+            return;
+        }
+        const response = yield (0, gemini_service_1.submitMessage)(body.message);
+        console.log(response);
+        // delay 3 second
+        setTimeout(() => {
+            const responseToReturn = {
+                id: Math.random(),
+                question: body.message,
+                response: response,
+            };
+            res.json(responseToReturn);
+        }, 1500);
+    }
+    catch (error) {
+        console.error("Error in chat initiate:", error);
+        res.status(500).json({
+            id: 0,
+            question: ((_a = req.body) === null || _a === void 0 ? void 0 : _a.message) || "",
+            response: "An error occurred while processing your request",
+        });
+    }
 }));
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

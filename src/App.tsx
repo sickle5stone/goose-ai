@@ -1,3 +1,5 @@
+import type { ChangeEvent } from "react";
+import React from "react";
 import Typewriter from "./Typewriter";
 import gooseLogo from "./assets/goose.svg";
 import quackIcon from "./assets/quack.svg";
@@ -148,7 +150,7 @@ function App() {
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                 setMessage(e.target.value)
               }
-              onKeyDown={(e: KeyboardEvent<HTMLTextAreaElement>) => {
+              onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
                 if (
                   e.key === "Enter" &&
                   (e.shiftKey || e.ctrlKey || e.metaKey)

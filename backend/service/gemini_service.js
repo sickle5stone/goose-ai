@@ -19,11 +19,19 @@ dotenv_1.default.config();
 console.log(process.env.GEMINI_API_KEY);
 const ai = new genai_1.GoogleGenAI({ apiKey: `${process.env.GEMINI_API_KEY}` });
 const submitMessage = (message) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(message);
-    const response = yield ai.models.generateContent({
-        model: "gemini-2.0-flash-exp",
-        contents: message,
-    });
-    return response.text;
+    try {
+        console.log(message);
+        const response = yield ai.models.generateContent({
+            model: "gemini-2.0-flash-exp",
+            contents: message,
+        });
+        // Get the text from the response - it's a property, not a method
+        const text = response.text;
+        return text || "No response generated";
+    }
+    catch (error) {
+        console.error("Error generating content:", error);
+        throw new Error("Failed to generate response from Gemini API");
+    }
 });
 exports.submitMessage = submitMessage;
