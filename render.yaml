@@ -20,7 +20,6 @@ services:
   - type: web
     name: goose-ai-frontend
     runtime: static
-    plan: starter
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     envVars:
