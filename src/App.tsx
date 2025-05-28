@@ -1,10 +1,11 @@
+import { useEffect, useRef, useState } from "react";
+
 import type { ChangeEvent } from "react";
 import React from "react";
 import Typewriter from "./Typewriter";
 import gooseLogo from "./assets/goose.svg";
 import quackIcon from "./assets/quack.svg";
 import talkingDuck from "./assets/talking-duck.svg";
-import { useState } from "react";
 
 interface Message {
   id: number;
@@ -28,6 +29,25 @@ function App() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState<Message[]>([]);
+  const conversationContainerRef = useRef<HTMLDivElement>(null);
+  const mainConversationRef = useRef<HTMLDivElement>(null);
+
+  // Function to scroll to bottom
+  const scrollToBottom = () => {
+    if (conversationContainerRef.current) {
+      conversationContainerRef.current.scrollTop =
+        conversationContainerRef.current.scrollHeight;
+    }
+    if (mainConversationRef.current) {
+      mainConversationRef.current.scrollTop =
+        mainConversationRef.current.scrollHeight;
+    }
+  };
+
+  // Scroll to bottom whenever conversation updates
+  useEffect(() => {
+    scrollToBottom();
+  }, [conversation]);
 
   const constructConversation = (question: string, role: string) => {
     setConversation((prev) => [
@@ -59,7 +79,7 @@ function App() {
       .then((res) => res.json())
       .then((data) => {
         constructConversation(data.response, "assistant");
-        // setMessage("");
+        setMessage("");
       });
 
     setIsLoading(false);
@@ -71,16 +91,19 @@ function App() {
     }
 
     return (
-      <div className="flex flex-col items-center justify-center gap-2 max-w-[30%]">
+      <div className="flex flex-col items-center justify-center gap-2">
         <div className="flex flex-row items-center justify-center gap-2">
           <img src={talkingDuck} alt="duck1" className="w-10 h-10" />
           <span className="text-2xl font-bold">Duck 1</span>
         </div>
 
-        <div className="bg-white ml-20 rounded-2xl p-4 space-y-4">
-          <div>
+        <div
+          ref={conversationContainerRef}
+          className="bg-white lg:ml-20 rounded-2xl p-4 space-y-4 max-h-96 overflow-y-auto"
+        >
+          <div className="hidden lg:flex">
             {/* goose is quacking to you */}
-            <h1 className="text-2xl font-bold flex gap-2 items-center">
+            <h1 className="text-2xl font-bold flex gap-2">
               {/* some quack icon */}
               <img src={quackIcon} alt="quack" className="w-10 h-10" />
               <span className="text-2xl font-bold text-yellow-500">Quack!</span>
@@ -98,7 +121,11 @@ function App() {
               {message.role === "user" ? (
                 message.message
               ) : (
-                <Typewriter text={message.message} delay={10} />
+                <Typewriter
+                  text={message.message}
+                  delay={10}
+                  onUpdate={scrollToBottom}
+                />
               )}
             </div>
           ))}
@@ -139,7 +166,47 @@ function App() {
           Talk to me "Goose"
         </h1>
 
-        <div className="bg-gray-50 rounded-xl p-6 mb-6">
+        <div
+          ref={mainConversationRef}
+          className="flex flex-col items-center justify-center gap-2 max-h-64 overflow-y-auto mb-4"
+        >
+          {conversation.length > 0 && (
+            <div className="w-full space-y-4">
+              {conversation.map((message) => (
+                <div
+                  key={message.id}
+                  className={`p-4 rounded-lg ${
+                    message.role === "user"
+                      ? "bg-gray-100 ml-8"
+                      : "bg-blue-100 mr-8"
+                  }`}
+                >
+                  {message.role === "user" ? (
+                    message.message
+                  ) : (
+                    <Typewriter
+                      text={message.message}
+                      delay={10}
+                      onUpdate={scrollToBottom}
+                    />
+                  )}
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className="flex">
+                  <div className="animate-pulse flex bg-blue-100 rounded-lg px-4 py-2">
+                    <span className="text-2xl font-bold text-yellow-500">
+                      . . .
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="sticky bottom-0 bg-gray-50 rounded-xl p-6 mb-6">
           {/* // multiline text area input */}
           <div className="relative w-full">
             <textarea
@@ -216,7 +283,7 @@ function App() {
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       {renderChatWindow()}
-      {renderConversationWindow()}
+      <div className="hidden lg:flex">{renderConversationWindow()}</div>
     </div>
   );
 }

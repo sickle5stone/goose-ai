@@ -7,7 +7,7 @@
     "dev": "vite",
     "backend": "node backend/express.ts",
     "backend:dev": "nodemon backend/express.ts",
-    "start": "npm run dev & npm run dev",
+    "start": "npm run backend:dev & npm run dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
