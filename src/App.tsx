@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import type { ChangeEvent } from "react";
+import FormattingTestPage from "./components/FormattingTestPage";
 import React from "react";
 import Typewriter from "./Typewriter";
 import gooseLogo from "./assets/goose.svg";
@@ -32,6 +33,9 @@ function App() {
   const conversationContainerRef = useRef<HTMLDivElement>(null);
   const mainConversationRef = useRef<HTMLDivElement>(null);
   const [gooseName, setGooseName] = useState("");
+  const debouncedScrollToBottom = useRef<
+    ReturnType<typeof setTimeout> | undefined
+  >(undefined);
 
   useEffect(() => {
     const name = localStorage.getItem("gooseName");
@@ -43,6 +47,28 @@ function App() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined
   );
+
+  // Scroll to bottom whenever conversation updates
+  useEffect(() => {
+    scrollToBottom();
+  }, [conversation]);
+
+  // Cleanup debounced scroll timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debouncedScrollToBottom.current) {
+        clearTimeout(debouncedScrollToBottom.current);
+      }
+    };
+  }, []);
+
+  // Check if we should show the formatting test page
+  const urlParams = new URLSearchParams(window.location.search);
+  const showTest = urlParams.get("test") === "formatting";
+
+  if (showTest) {
+    return <FormattingTestPage />;
+  }
 
   const debouncedSave = (value: string) => {
     if (debounceRef.current) {
@@ -56,19 +82,28 @@ function App() {
   // Function to scroll to bottom
   const scrollToBottom = () => {
     if (conversationContainerRef.current) {
-      conversationContainerRef.current.scrollTop =
-        conversationContainerRef.current.scrollHeight;
+      conversationContainerRef.current.scrollTo({
+        top: conversationContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
     if (mainConversationRef.current) {
-      mainConversationRef.current.scrollTop =
-        mainConversationRef.current.scrollHeight;
+      mainConversationRef.current.scrollTo({
+        top: mainConversationRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
   };
 
-  // Scroll to bottom whenever conversation updates
-  useEffect(() => {
-    scrollToBottom();
-  }, [conversation]);
+  // Debounced scroll function for typewriter updates
+  const smoothScrollToBottom = () => {
+    if (debouncedScrollToBottom.current) {
+      clearTimeout(debouncedScrollToBottom.current);
+    }
+    debouncedScrollToBottom.current = setTimeout(() => {
+      scrollToBottom();
+    }, 50); // Reduced debounce time for more responsive scrolling
+  };
 
   const constructConversation = (question: string, role: string) => {
     setConversation((prev) => [
@@ -120,7 +155,7 @@ function App() {
 
         <div
           ref={conversationContainerRef}
-          className="bg-white lg:ml-20 rounded-2xl p-4 space-y-4 overflow-y-auto lg:min-w-[340px]"
+          className="bg-white lg:ml-20 rounded-2xl p-6 space-y-4 overflow-y-auto lg:w-[540px] max-h-[600px] shadow-lg"
         >
           <div className="hidden lg:flex">
             {/* goose is quacking to you */}
@@ -150,7 +185,8 @@ function App() {
                   <Typewriter
                     text={message.message}
                     delay={10}
-                    onUpdate={scrollToBottom}
+                    onUpdate={smoothScrollToBottom}
+                    disableAutoScroll={true}
                   />
                 )}
               </div>
@@ -244,7 +280,8 @@ function App() {
                       <Typewriter
                         text={message.message}
                         delay={10}
-                        onUpdate={scrollToBottom}
+                        onUpdate={smoothScrollToBottom}
+                        disableAutoScroll={true}
                       />
                     )}
                   </div>
@@ -344,7 +381,7 @@ function App() {
       <div
         className={`hidden ${
           conversation.length > 0 ? "lg:flex" : "hidden"
-        } lg:w-1/4 lg:my-20`}
+        } lg:my-20`}
       >
         {renderConversationWindow()}
       </div>

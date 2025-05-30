@@ -31,7 +31,11 @@ const corsOptions = {
           "https://goose-ai-frontend.onrender.com",
           "https://your-frontend-domain.onrender.com",
         ]
-      : "http://localhost:5177",
+      : [
+          "http://localhost:5177",
+          "http://localhost:5173",
+          "http://localhost:5174",
+        ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };

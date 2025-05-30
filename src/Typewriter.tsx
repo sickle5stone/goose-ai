@@ -1,15 +1,33 @@
+import { TextFormatter, defaultTextFormatter } from "./utils/textFormatter";
 import { useEffect, useRef, useState } from "react";
 
 interface TypewriterProps {
   text: string;
   delay: number;
   onUpdate?: () => void;
+  formatterOptions?: TextFormatterOptions;
+  disableAutoScroll?: boolean;
 }
 
-const Typewriter = ({ text, delay, onUpdate }: TypewriterProps) => {
+const Typewriter = ({
+  text,
+  delay,
+  onUpdate,
+  formatterOptions,
+  disableAutoScroll,
+}: TypewriterProps) => {
   const [currentText, setCurrentText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const textRef = useRef<HTMLDivElement>(null);
+
+  // Create formatter instance with custom options if provided
+  const formatter = formatterOptions
+    ? new TextFormatter(formatterOptions)
+    : defaultTextFormatter;
+
+  const formatText = (text: string) => {
+    return formatter.formatText(text);
+  };
 
   useEffect(() => {
     if (currentIndex < text.length) {
@@ -23,13 +41,14 @@ const Typewriter = ({ text, delay, onUpdate }: TypewriterProps) => {
         }
 
         // Scroll the current element into view
-        if (textRef.current) {
+        if (textRef.current && !disableAutoScroll) {
           textRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
         }
-      }, delay);
+      }, delay + currentIndex * 0.01);
+
       return () => clearTimeout(timeout);
     }
-  }, [text, currentIndex, delay, onUpdate]);
+  }, [text, currentIndex, delay, onUpdate, disableAutoScroll]);
 
   // Reset when text changes
   useEffect(() => {
@@ -37,7 +56,7 @@ const Typewriter = ({ text, delay, onUpdate }: TypewriterProps) => {
     setCurrentIndex(0);
   }, [text]);
 
-  return <div ref={textRef}>{currentText}</div>;
+  return <div ref={textRef}>{formatText(currentText)}</div>;
 };
 
 export default Typewriter;
