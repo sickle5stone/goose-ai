@@ -1,27 +1,6 @@
+import type { FormattedSegment, TextFormatterOptions } from "../types";
+
 import React from "react";
-
-export interface FormattedSegment {
-  type:
-    | "text"
-    | "bold"
-    | "bullet"
-    | "parenthetical"
-    | "question"
-    | "emphasis"
-    | "code";
-  content: string;
-  key: string;
-  children?: FormattedSegment[];
-}
-
-export interface TextFormatterOptions {
-  bulletColor?: string;
-  boldColor?: string;
-  parentheticalColor?: string;
-  questionColor?: string;
-  emphasisColor?: string;
-  codeBackgroundColor?: string;
-}
 
 export class TextFormatter {
   private options: TextFormatterOptions;

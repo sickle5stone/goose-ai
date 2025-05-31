@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const gemini_service_1 = require("./service/gemini_service");
+const grok_service_1 = require("./service/grok_service");
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3008;
 // CORS configuration for production
@@ -24,7 +25,11 @@ const corsOptions = {
             "https://goose-ai-frontend.onrender.com",
             "https://your-frontend-domain.onrender.com",
         ]
-        : "http://localhost:5177",
+        : [
+            "http://localhost:5177",
+            "http://localhost:5173",
+            "http://localhost:5174",
+        ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
 };
@@ -49,7 +54,17 @@ app.post(`${rootRoute}/chat/initiate`, (req, res) => __awaiter(void 0, void 0, v
             });
             return;
         }
-        const response = yield (0, gemini_service_1.submitMessage)(body.message);
+        let response;
+        // Route to different AI services based on model
+        switch (body.model) {
+            case "grok-beta":
+                response = yield (0, grok_service_1.submitMessage)(body.message);
+                break;
+            case "gemini-2.0-flash-exp":
+            default:
+                response = yield (0, gemini_service_1.submitMessage)(body.message);
+                break;
+        }
         console.log(response);
         // delay 3 second
         setTimeout(() => {

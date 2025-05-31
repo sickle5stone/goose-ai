@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
 
 import cors from "cors";
-import { submitMessage } from "./service/gemini_service";
+import { submitMessage as submitGeminiMessage } from "./service/gemini_service";
+import { submitMessage as submitGrokMessage } from "./service/grok_service";
 
 // Type definitions
 interface ChatRequest {
@@ -69,7 +70,19 @@ app.post(
         return;
       }
 
-      const response = await submitMessage(body.message);
+      let response: string;
+
+      // Route to different AI services based on model
+      switch (body.model) {
+        case "grok-beta":
+          response = await submitGrokMessage(body.message);
+          break;
+        case "gemini-2.0-flash-exp":
+        default:
+          response = await submitGeminiMessage(body.message);
+          break;
+      }
+
       console.log(response);
 
       // delay 3 second

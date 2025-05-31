@@ -1,1 +1,1 @@
-{"root":["./express.ts","./service/gemini_service.ts"],"version":"5.8.3"}
+{"root":["./express.ts","./service/gemini_service.ts","./service/grok_service.ts"],"version":"5.8.3"}

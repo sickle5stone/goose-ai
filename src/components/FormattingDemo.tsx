@@ -1,9 +1,6 @@
-import {
-  TextFormatterOptions,
-  formatLLMResponse,
-} from "../utils/textFormatter";
-
 import React from "react";
+import type { TextFormatterOptions } from "../types";
+import { formatLLMResponse } from "../utils/textFormatter";
 
 const FormattingDemo: React.FC = () => {
   const sampleText =
