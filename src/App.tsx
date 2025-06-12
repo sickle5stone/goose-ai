@@ -103,48 +103,76 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      {/* Main Chat Window */}
-      <ChatWindow
-        activeModels={activeModels}
-        activeModel={activeModel}
-        setActiveModel={setActiveModel}
-        message={message}
-        setMessage={setMessage}
-        isLoading={isLoading}
-        conversation={conversation}
-        isAutoScrollEnabled={isAutoScrollEnabled}
-        setIsAutoScrollEnabled={setIsAutoScrollEnabled}
-        isTyping={isTyping}
-        customAvatar={customAvatar}
-        isDropdownOpen={isDropdownOpen}
-        setIsDropdownOpen={setIsDropdownOpen}
-        mainConversationRef={mainConversationRef}
-        gooseName={gooseName}
-        setGooseName={setGooseName}
-        onSubmit={handleSubmit}
-        onScroll={smoothScrollToBottom}
-        onTypingStatusChange={handleTypingStatusChange}
-        onCancelTyping={handleCancelTyping}
-        mobileConversationDisplayRef={mobileConversationDisplayRef}
-      />
-
-      {/* Desktop Conversation Window */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Container with proper spacing and responsive layout */}
       <div
-        className={`hidden ${
-          conversation.length > 0 ? "lg:flex" : "hidden"
-        } lg:my-20`}
+        className={`transition-all duration-700 ease-in-out ${
+          conversation.length > 0
+            ? "container mx-auto px-4 py-6 lg:py-8"
+            : "h-screen flex items-center justify-center px-4"
+        }`}
       >
-        <ConversationWindow
-          conversation={conversation}
-          isLoading={isLoading}
-          isTyping={isTyping}
-          conversationContainerRef={conversationContainerRef}
-          onTypewriterUpdate={smoothScrollToBottom}
-          onTypingStatusChange={handleTypingStatusChange}
-          onCancelTyping={handleCancelTyping}
-          conversationDisplayRef={conversationDisplayRef}
-        />
+        {/* Mobile-first: Single column on mobile, side-by-side on desktop */}
+        <div
+          className={`transition-all duration-700 ease-in-out ${
+            conversation.length > 0
+              ? "lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start"
+              : "w-full max-w-md"
+          }`}
+        >
+          {/* Chat Input Window - Centered when no conversation, left column when conversation exists */}
+          <div
+            className={`transition-all duration-700 ease-in-out ${
+              conversation.length > 0
+                ? "lg:col-span-5 lg:sticky lg:top-8"
+                : "w-full"
+            }`}
+          >
+            <ChatWindow
+              activeModels={activeModels}
+              activeModel={activeModel}
+              setActiveModel={setActiveModel}
+              message={message}
+              setMessage={setMessage}
+              isLoading={isLoading}
+              conversation={conversation}
+              isAutoScrollEnabled={isAutoScrollEnabled}
+              setIsAutoScrollEnabled={setIsAutoScrollEnabled}
+              isTyping={isTyping}
+              customAvatar={customAvatar}
+              isDropdownOpen={isDropdownOpen}
+              setIsDropdownOpen={setIsDropdownOpen}
+              mainConversationRef={mainConversationRef}
+              gooseName={gooseName}
+              setGooseName={setGooseName}
+              onSubmit={handleSubmit}
+              onScroll={smoothScrollToBottom}
+              onTypingStatusChange={handleTypingStatusChange}
+              onCancelTyping={handleCancelTyping}
+              mobileConversationDisplayRef={mobileConversationDisplayRef}
+            />
+          </div>
+
+          {/* Conversation Window - Appears with smooth transition */}
+          <div
+            className={`hidden lg:block transition-all duration-700 ease-in-out ${
+              conversation.length > 0
+                ? "lg:col-span-7 opacity-100 translate-x-0"
+                : "opacity-0 translate-x-8 pointer-events-none"
+            }`}
+          >
+            <ConversationWindow
+              conversation={conversation}
+              isLoading={isLoading}
+              isTyping={isTyping}
+              conversationContainerRef={conversationContainerRef}
+              onTypewriterUpdate={smoothScrollToBottom}
+              onTypingStatusChange={handleTypingStatusChange}
+              onCancelTyping={handleCancelTyping}
+              conversationDisplayRef={conversationDisplayRef}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Rate Limit Notification */}

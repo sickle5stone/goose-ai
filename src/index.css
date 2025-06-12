@@ -4,6 +4,9 @@
   --animate-spin-slow: spin 3s linear infinite;
   --animate-fadeIn: fadeIn 0.3s ease-out;
   --animate-slideIn: slideIn 0.3s ease-out;
+  --animate-slideUp: slideUp 0.3s ease-out;
+  --animate-slideInRight: slideInRight 0.7s ease-out;
+  --animate-fadeInScale: fadeInScale 0.7s ease-out;
 
   @keyframes spin {
     to {
@@ -41,10 +44,80 @@
       opacity: 1;
     }
   }
+
+  @keyframes slideInRight {
+    from {
+      transform: translateX(2rem);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes bounce {
+    0%,
+    20%,
+    53%,
+    80%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    40%,
+    43% {
+      transform: translate3d(0, -8px, 0);
+    }
+    70% {
+      transform: translate3d(0, -4px, 0);
+    }
+    90% {
+      transform: translate3d(0, -2px, 0);
+    }
+  }
 }
 
 @utility no-scrollbar {
   &::-webkit-scrollbar {
     display: none;
   }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom focus styles */
+@utility focus-ring {
+  &:focus {
+    outline: 2px solid rgb(59 130 246);
+    outline-offset: 2px;
+  }
+}
+
+/* Smooth layout transitions */
+@utility smooth-layout {
+  transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced smooth transitions */
+* {
+  transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out,
+    background-color 150ms ease-in-out;
+}
+
+/* Layout transition optimization */
+.layout-transition {
+  transition: grid-template-columns 0.7s ease-in-out, gap 0.7s ease-in-out,
+    width 0.7s ease-in-out, max-width 0.7s ease-in-out, opacity 0.7s ease-in-out,
+    transform 0.7s ease-in-out;
 }
